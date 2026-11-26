@@ -57,3 +57,6 @@ node_modules/
 .idea/
 *.swp
 *.swo
+
+# External animation engine (nested git repo)
+claude-animation-skills/
