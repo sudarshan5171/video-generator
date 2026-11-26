@@ -28,3 +28,10 @@ Produce 16:9 (1920x1080) long-form historical and mythological documentary chapt
 5. **Hindi Captions & Final Mix:**
    - Place rolling Devanagari subtitles at **Y: 88%** (safe 16:9 bottom zone) inside a dark semi-transparent pill with gold keyword highlights.
    - Mix `./vo.mp3` with subtle code-generated SFX (-14 dB) in FFmpeg and render final `1920x1080` 30fps MP4.
+
+## Mandatory Pre-Render Visual QA Gate
+Before assembling or rendering any chapter video:
+   1. Visually inspect every newly generated PNG in `./assets/epX/chY/` against its scene prompt and `.agent/skills/anime-doc/refs/`.
+   2. Check for: character likeness, realistic human-to-chariot proportions, no extra unintended characters, lore accuracy (e.g., Krishna unarmed, proper weapon/conch orientation), and 1990s cel-animation style lock (no text/CGI).
+   3. Print a brief PASS/FAIL table for all frames.
+   4. Auto-regenerate ONLY failed frames with targeted prompt fixes (max **2 retries** per frame). Only proceed to video rendering once all frames PASS; if a frame fails twice, pause for user review.
