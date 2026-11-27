@@ -63,7 +63,7 @@ def _load_dotenv_if_needed():
                     os.environ[k] = v
 
 
-def generate_anime_frame(prompt: str, output_path: str, chars: str = "", model: str = "gemini-2.5-flash-image"):
+def generate_anime_frame(prompt: str, output_path: str, chars: str = "", model: str = "gemini-2.5-flash-image", aspect: str = "16:9"):
     _load_dotenv_if_needed()
     api_key = os.environ.get("GEMINI_API_KEY") or os.environ.get("GOOGLE_API_KEY")
     if not api_key:
@@ -86,7 +86,11 @@ def generate_anime_frame(prompt: str, output_path: str, chars: str = "", model: 
     else:
         ref_note = ""
 
-    full_prompt = f"{ref_note}{prompt.strip()}, {STYLE_LOCK}"
+    style_lock = STYLE_LOCK
+    if aspect == "9:16":
+        style_lock = style_lock.replace("16:9 widescreen cinematic frame", "9:16 vertical cinematic frame")
+
+    full_prompt = f"{ref_note}{prompt.strip()}, {style_lock}"
     contents.append(full_prompt)
 
     response = client.models.generate_content(
@@ -95,7 +99,7 @@ def generate_anime_frame(prompt: str, output_path: str, chars: str = "", model: 
         config=types.GenerateContentConfig(
             response_modalities=["IMAGE"],
             image_config=types.ImageConfig(
-                aspect_ratio="16:9",
+                aspect_ratio=aspect,
             ),
         ),
     )
@@ -105,7 +109,7 @@ def generate_anime_frame(prompt: str, output_path: str, chars: str = "", model: 
     for part in response.candidates[0].content.parts:
         if part.inline_data:
             out.write_bytes(part.inline_data.data)
-            print(f"Saved 16:9 anime frame -> {out} (refs: {loaded_names or 'none'})")
+            print(f"Saved {aspect} anime frame -> {out} (refs: {loaded_names or 'none'})")
             return
 
     print("Error: No image returned from API.", file=sys.stderr)
@@ -117,5 +121,6 @@ if __name__ == "__main__":
     parser.add_argument("--out", required=True, help="Output PNG path")
     parser.add_argument("--chars", default="", help="Comma-separated character keys from characters.json")
     parser.add_argument("--model", default="gemini-2.5-flash-image")
+    parser.add_argument("--aspect", default="16:9", help="Aspect ratio (e.g. 16:9 or 9:16)")
     args = parser.parse_args()
-    generate_anime_frame(args.prompt, args.out, args.chars, args.model)
+    generate_anime_frame(args.prompt, args.out, args.chars, args.model, args.aspect)
